@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
     createCartService,
     getCartService,
+    placeOrder,
     updateCartService,
 } from '../services/cart.service';
 
@@ -39,8 +40,8 @@ export const updateCart = async(req: Request, res: Response) => {
 
 export const createOrder = (req: Request, res: Response): void => {
     try {
-        // const order = createOrderService(req.params.cartId);
-        // res.status(201).json(order);
+        const order = placeOrder(req.params.cartId);
+        res.status(201).json(order);
     } catch (error: any) {
         const status = error.message === 'Cart not found' ? 404 : 500;
         res.status(status).json({ error: error.message });

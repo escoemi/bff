@@ -24,10 +24,23 @@ export const mapProductDtoItemToProduct = (item: ProductDTOItem): Product => {
             }
         }],
         images: item.media_gallery_entries.map(entry => ({ url: `${process.env.MAGENTO_URL_MEDIA}/${entry.file}` })),
-        attributes: item.custom_attributes.map(attr => ({
+        attributes: [...item.custom_attributes.map(attr => ({
             name: attr.attribute_code,
-            value: { key: String(attr.value), label: String(attr.value) }
-        })),
+            value: { key: String(attr.value), label: String(attr.value) },
+        })), {
+            name: "Color",
+            value: {
+                label: "blue",
+                key: "blue"
+            }
+        },
+        {
+            name: "Size",
+            value: {
+                label: "XL",
+                key: "XL"
+            }
+        }],
         slug: urlKey,
     };
 
@@ -63,7 +76,77 @@ export const mapMagentoProductDetails = (productVariantDetails: ProductVariantDe
 
             return acc
         }, [] as string[]) || [],
+        //@ts-ignore
+        masterVariant: {
+            id: productVariantDetails.id,
+            name: productVariantDetails.name,
+            description: (productVariantDetails.custom_attributes?.find(attr => attr.attribute_code === 'description')?.value || "") as string,
+            price: productVariantDetails.price,
+            sku: productVariantDetails.sku,
+            code: productDetails.sku,
+            size: (productVariantDetails.custom_attributes?.find(attr => attr.attribute_code === 'size')?.value || '') as string,
+            color: (productVariantDetails.custom_attributes?.find(attr => attr.attribute_code === 'color')?.value || '') as string,
+            attributes: [...productVariantDetails?.custom_attributes?.map(attr => ({
+                name: attr.attribute_code,
+                value: { key: String(attr.value), label: String(attr.value) },
+            })) || [], {
+                name: "Color",
+                value: {
+                    label: "blue",
+                    key: "blue"
+                }
+            },
+            {
+                name: "Size",
+                value: {
+                    label: "XL",
+                    key: "XL"
+                }
+            }],
+            images: productVariantDetails.media_gallery_entries?.reduce((acc, entry) => {
+                if (entry.media_type === 'image' && entry.file) {
+                    acc.push({ url: `${process.env.MAGENTO_URL_MEDIA}/${entry.file}` })
+
+                    return acc
+                }
+
+                return acc
+            }, [] as { url: string }[]) || [],
+        },
         sizes: sizesOption ? sizesOption.values.map(val => val.value_index) : [],
         colors: colorsOption ? colorsOption.values.map(val => val.value_index) : [],
     }
+}
+
+export const mapDTOtoVariant = (item: ProductVariantDetailsDTO, urlKey?: string): Variant => {
+    return {
+        id: item?.id?.toString() || "",
+        sku: item.sku,
+        name: item.name,
+        prices: [{
+            value: {
+                currencyCode: "USD",
+                centAmount: item.price * 100,
+            }
+        }],
+        images: item?.media_gallery_entries?.map(entry => ({ url: `${process.env.MAGENTO_URL_MEDIA}/${entry.file}` })) || [],
+        attributes: [...item?.custom_attributes?.map(attr => ({
+            name: attr.attribute_code,
+            value: { key: String(attr.value), label: String(attr.value) },
+        })) || [], {
+            name: "Color",
+            value: {
+                label: "blue",
+                key: "blue"
+            }
+        },
+        {
+            name: "Size",
+            value: {
+                label: "XL",
+                key: "XL"
+            }
+        }],
+        slug: urlKey || "",
+    };
 }

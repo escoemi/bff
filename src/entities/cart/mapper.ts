@@ -1,3 +1,5 @@
+import { ProductVariantDetailsDTO } from "../product/dto"
+import { mapDTOtoVariant } from "../product/mapper"
 import { ProductDetails } from "../product/types"
 import { CartDTO, CartLineItemDTO } from "./dto"
 import { Cart, CartLineItem } from "./types"
@@ -6,7 +8,7 @@ export const mapMagentoCart = (id: string, cart: CartDTO, items: CartLineItemDTO
     return {
         id,
         version: 0,
-        customerId: '',
+        customerId: null,
         lineItems: mapMagentoCartLineItems(items, details, cart),
         totalPrice: {
             currencyCode: cart.currency.store_currency_code || 'USD',
@@ -19,11 +21,16 @@ export const mapMagentoCart = (id: string, cart: CartDTO, items: CartLineItemDTO
     }
 }
 
-const mapMagentoCartLineItems = (items: CartLineItemDTO[], details: ProductDetails[], cart: CartDTO): CartLineItem[] =>
-    items.map(item => ({
-        id: item.item_id.toString(),
-        details: details.find(detail => detail.sku === item.sku),
-        quantity: item.qty,
-        totalPrice: item.price * item.qty,
-        currencyCode: cart.currency.store_currency_code || 'USD',
-    }))
+const mapMagentoCartLineItems = (items: CartLineItemDTO[], details: ProductDetails[], cart: CartDTO): CartLineItem[] => {
+    return items.map(item => {
+        const product = details.find(detail => detail.sku === item.sku)
+        return {
+            id: item.item_id.toString(),
+            details: product,
+            quantity: item.qty,
+            totalPrice: item.price * item.qty,
+            currencyCode: cart.currency.store_currency_code || 'USD',
+            variant: product ? mapDTOtoVariant(product as ProductVariantDetailsDTO) : undefined,
+        }
+    })
+}

@@ -9,6 +9,8 @@ export interface Attribute {
     key: string;
     label: string;
   };
+  size?: string,
+  color?: string,
 }
 
 export interface Image {

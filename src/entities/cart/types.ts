@@ -1,9 +1,10 @@
 import { ProductDetails } from "../product/types"
+import { Variant } from "../types"
 
 export interface Cart {
     id: string
     version?: number
-    customerId?: string
+    customerId?: string | null,
     lineItems?: CartLineItem[]
     totalPrice?: CartTotalPrice
     totalQuantity: number
@@ -15,6 +16,7 @@ export interface CartLineItem {
     quantity?: number
     totalPrice?: number
     currencyCode?: string
+    variant?: Variant
 }
 
 export interface CartTotalPrice {
@@ -28,6 +30,7 @@ export type UpdateCartPayload = {
     AddLineItem?: AddToCartAction
     RemoveLineItem?: UpdateCartAction
     ChangeLineItemQuantity?: UpdateCartAction
+    SetShippingAddress?: SetShippingAddressAction
 }
 
 export interface UpdateCartAction {
@@ -40,4 +43,16 @@ export interface AddToCartAction {
     quantity: number
 }
 
-export type UpdateCartAvailableActionTypes = 'AddLineItem' | 'RemoveLineItem' | 'ChangeLineItemQuantity'
+export interface SetShippingAddressAction {
+    country: string
+    firstName: string
+    lastName: string
+    streetName: string
+    streetNumber: string
+    postalCode: string
+    city: string
+    region: string
+    email: string
+  }
+
+  export type UpdateCartAvailableActionTypes = 'AddLineItem' | 'RemoveLineItem' | 'ChangeLineItemQuantity' | 'SetShippingAddress'
