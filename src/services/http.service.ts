@@ -3,6 +3,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import https from 'https';
 dotenv.config();
 
+let flag = process.env.ECOMMERCE_FLAG == "true"
+
 export interface HttpWrapperOptions {
     baseUrl?: string;
     headers?: Record<string, string>;
@@ -14,9 +16,9 @@ export const fetchJson = async <T = any>(
     endpoint: string,
     options: HttpWrapperOptions = {}
 ): Promise<T> => {
-    const baseUrl = options.baseUrl || process.env.MAGENTO_URL || '';
+    const baseUrl = options.baseUrl || flag ? process.env.ECOMMERCE_URL : process.env.MAGENTO_URL;
     const url = `${baseUrl}${endpoint}`;
-    const authorization = `Bearer ${process.env.TOKEN}`;
+    const authorization = `Bearer ${flag ? process.env.ECOMMERCE_TOKEN : process.env.TOKEN}`;
 
     const agent = new https.Agent({ rejectUnauthorized: false });
     const { baseUrl: _baseUrl, ...rest } = options;

@@ -1,10 +1,15 @@
 import { Request, Response } from 'express';
-import {
-    createCartService,
-    getCartService,
-    placeOrder,
-    updateCartService,
-} from '../services/cart.service';
+
+let CartService;
+let flag = process.env.ECOMMERCE_FLAG == "true"
+
+if (flag) {
+    CartService = require('../services/ecommerce.cart.service');
+} else {
+    CartService = require('../services/cart.service');
+}
+
+const { createCartService, getCartService, placeOrder, updateCartService } = CartService;
 
 export const createCart = async (req: Request, res: Response) => {
     try {
